@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Manrope", sans-serif;
+  --font-display: "Poppins", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-brand-bg: #070B18;
+  --color-brand-primary: #2D7FF9;
+  --color-brand-secondary: #00E5FF;
+  --color-brand-accent: #8A5CFF;
+  --color-brand-success: #00D27A;
+  --color-brand-warning: #FFB547;
+  --color-brand-danger: #FF4D67;
+
+  --animate-glow: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 10px rgba(45, 127, 249, 0.2), 0 0 20px rgba(45, 127, 249, 0.1);
+  }
+  to {
+    box-shadow: 0 0 20px rgba(45, 127, 249, 0.5), 0 0 30px rgba(0, 229, 255, 0.3);
+  }
+}
+
+/* Custom scrollbar to match the futuristic dark premium UI */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #070B18;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* Custom utility classes */
+.glass-panel {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(45, 127, 249, 0.3);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
+.glow-blue {
+  box-shadow: 0 0 30px rgba(45, 127, 249, 0.2);
+}
+
+.glow-purple {
+  box-shadow: 0 0 30px rgba(138, 92, 255, 0.2);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 30px rgba(0, 229, 255, 0.15);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #ffffff 10%, #94a3b8 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-glow-gradient {
+  background: linear-gradient(135deg, #2D7FF9 0%, #00E5FF 50%, #8A5CFF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}

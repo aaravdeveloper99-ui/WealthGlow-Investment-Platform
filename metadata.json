@@ -1,0 +1,6 @@
+{
+  "name": "WealthGlow Investment Platform",
+  "description": "Premium dark-themed fintech SaaS platform for high-yield passive investing, secure wallet management, multi-level referral commissions, and administrative control.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
