@@ -1,0 +1,199 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and account settings",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "phone": { "type": "string" },
+        "referralCode": { "type": "string" },
+        "referredBy": { "type": "string" },
+        "status": { "type": "string", "enum": ["ACTIVE", "SUSPENDED"] },
+        "kycStatus": { "type": "string", "enum": ["PENDING_SUBMISSION", "PENDING_REVIEW", "APPROVED", "REJECTED"] },
+        "role": { "type": "string", "enum": ["USER", "ADMIN"] },
+        "avatar": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "fullName", "email", "phone", "referralCode", "status", "kycStatus", "role", "createdAt", "updatedAt"]
+    },
+    "Wallet": {
+      "title": "Wallet",
+      "description": "User digital wallet balance and stats",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "balance": { "type": "number" },
+        "lockedBalance": { "type": "number" },
+        "totalDeposit": { "type": "number" },
+        "totalWithdraw": { "type": "number" },
+        "totalProfit": { "type": "number" },
+        "totalBonus": { "type": "number" }
+      },
+      "required": ["id", "userId", "balance", "lockedBalance", "totalDeposit", "totalWithdraw", "totalProfit", "totalBonus"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial ledger transactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "walletId": { "type": "string" },
+        "referenceNo": { "type": "string" },
+        "type": { "type": "string", "enum": ["DEPOSIT", "WITHDRAWAL", "INVESTMENT", "ROI", "REFERRAL", "BONUS", "ADJUSTMENT"] },
+        "amount": { "type": "number" },
+        "fee": { "type": "number" },
+        "netAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["PENDING", "COMPLETED", "FAILED"] },
+        "description": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "walletId", "referenceNo", "type", "amount", "fee", "netAmount", "status", "description", "createdAt"]
+    },
+    "InvestmentPlan": {
+      "title": "InvestmentPlan",
+      "description": "Available passive investment tiers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "minimumAmount": { "type": "number" },
+        "maximumAmount": { "type": "number" },
+        "roiPercentage": { "type": "number" },
+        "durationDays": { "type": "number" },
+        "capitalReturn": { "type": "boolean" },
+        "status": { "type": "boolean" }
+      },
+      "required": ["id", "title", "minimumAmount", "maximumAmount", "roiPercentage", "durationDays", "capitalReturn", "status"]
+    },
+    "Investment": {
+      "title": "Investment",
+      "description": "Active and historical plan investments",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "planId": { "type": "string" },
+        "planTitle": { "type": "string" },
+        "amount": { "type": "number" },
+        "expectedProfit": { "type": "number" },
+        "dailyRoi": { "type": "number" },
+        "returnsEarned": { "type": "number" },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "status": { "type": "string", "enum": ["ACTIVE", "COMPLETED", "CANCELLED"] },
+        "completedAt": { "type": "string", "format": "date-time" },
+        "lastPayoutAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "planId", "planTitle", "amount", "expectedProfit", "dailyRoi", "returnsEarned", "startDate", "endDate", "status"]
+    },
+    "Deposit": {
+      "title": "Deposit",
+      "description": "Manual deposit request transactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "paymentReference": { "type": "string" },
+        "receiptUrl": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "COMPLETED", "FAILED"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "approvedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "amount", "paymentMethod", "paymentReference", "status", "createdAt"]
+    },
+    "Withdrawal": {
+      "title": "Withdrawal",
+      "description": "Manual withdrawal request transactions",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "amount": { "type": "number" },
+        "fee": { "type": "number" },
+        "paymentMethod": { "type": "string" },
+        "bankAccount": { "type": "string" },
+        "status": { "type": "string", "enum": ["PENDING", "COMPLETED", "FAILED"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "approvedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "amount", "fee", "paymentMethod", "bankAccount", "status", "createdAt"]
+    },
+    "ReferralCommission": {
+      "title": "ReferralCommission",
+      "description": "Multi-level referral commission track",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sponsorId": { "type": "string" },
+        "refereeId": { "type": "string" },
+        "refereeName": { "type": "string" },
+        "investmentId": { "type": "string" },
+        "amount": { "type": "number" },
+        "level": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sponsorId", "refereeId", "refereeName", "investmentId", "amount", "level", "createdAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "User notifications",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "body": { "type": "string" },
+        "type": { "type": "string", "enum": ["info", "success", "warning", "error"] },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "body", "type", "read", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User accounts collection"
+    },
+    "/wallets/{walletId}": {
+      "schema": "Wallet",
+      "description": "User wallets collection"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Ledger transactions"
+    },
+    "/plans/{planId}": {
+      "schema": "InvestmentPlan",
+      "description": "Investment plans master list"
+    },
+    "/investments/{investmentId}": {
+      "schema": "Investment",
+      "description": "User active/historical investments"
+    },
+    "/deposits/{depositId}": {
+      "schema": "Deposit",
+      "description": "User deposits"
+    },
+    "/withdrawals/{withdrawalId}": {
+      "schema": "Withdrawal",
+      "description": "User withdrawals"
+    },
+    "/commissions/{commissionId}": {
+      "schema": "ReferralCommission",
+      "description": "Multi-level affiliate payouts"
+    },
+    "/notifications/{notifId}": {
+      "schema": "Notification",
+      "description": "Alert messages"
+    }
+  }
+}

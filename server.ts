@@ -9,6 +9,8 @@ import fs from "fs";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import { createServer as createViteServer } from "vite";
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs, doc, setDoc, deleteDoc } from "firebase/firestore";
 import {
   User,
   Wallet,
@@ -90,6 +92,120 @@ const INITIAL_DB: DatabaseSchema = {
   notifications: [],
 };
 
+let firestoreDb: any = null;
+let lastSyncedData: DatabaseSchema | null = null;
+
+async function initFirestore() {
+  try {
+    const firebaseConfigPath = path.join(process.cwd(), "firebase-applet-config.json");
+    if (!fs.existsSync(firebaseConfigPath)) {
+      console.warn("firebase-applet-config.json not found, skipping Firestore sync");
+      return;
+    }
+    const firebaseConfig = JSON.parse(fs.readFileSync(firebaseConfigPath, "utf8"));
+    const app = initializeApp(firebaseConfig);
+    firestoreDb = getFirestore(app, firebaseConfig.firestoreDatabaseId || undefined);
+    console.log("[Firebase] Initialized successfully in backend.");
+
+    const collections = [
+      "users",
+      "wallets",
+      "transactions",
+      "plans",
+      "investments",
+      "deposits",
+      "withdrawals",
+      "commissions",
+      "notifications"
+    ];
+
+    const dbData: any = {};
+    for (const colName of collections) {
+      dbData[colName] = [];
+      const querySnapshot = await getDocs(collection(firestoreDb, colName));
+      querySnapshot.forEach((doc) => {
+        dbData[colName].push({ ...doc.data() });
+      });
+    }
+
+    // Merge default plans if empty
+    if (!dbData.plans || dbData.plans.length === 0) {
+      dbData.plans = INITIAL_DB.plans;
+      for (const plan of INITIAL_DB.plans) {
+        await setDoc(doc(firestoreDb, "plans", plan.id), plan);
+      }
+    }
+
+    // Merge admin user if empty
+    if (!dbData.users || dbData.users.length === 0) {
+      let localData = INITIAL_DB;
+      if (fs.existsSync(DB_FILE)) {
+        try {
+          localData = JSON.parse(fs.readFileSync(DB_FILE, "utf-8"));
+        } catch (e) {}
+      }
+      
+      for (const colName of collections) {
+        const items = (localData as any)[colName] || [];
+        for (const item of items) {
+          if (item && item.id) {
+            await setDoc(doc(firestoreDb, colName, item.id), item);
+          }
+        }
+      }
+      lastSyncedData = localData;
+    } else {
+      fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
+      lastSyncedData = dbData;
+      console.log("[Firebase] Local database fully synced with Cloud Firestore.");
+    }
+  } catch (err) {
+    console.error("[Firebase] Failed to initialize or sync with Firestore", err);
+  }
+}
+
+async function syncChangesToFirestore(newData: DatabaseSchema) {
+  if (!firestoreDb) return;
+  try {
+    const collections = [
+      "users",
+      "wallets",
+      "transactions",
+      "plans",
+      "investments",
+      "deposits",
+      "withdrawals",
+      "commissions",
+      "notifications"
+    ];
+
+    for (const colName of collections) {
+      const newItems = (newData as any)[colName] || [];
+      const oldItems = lastSyncedData ? ((lastSyncedData as any)[colName] || []) : [];
+
+      for (const item of newItems) {
+        if (!item || !item.id) continue;
+        const oldItem = oldItems.find((oi: any) => oi.id === item.id);
+        if (!oldItem || JSON.stringify(oldItem) !== JSON.stringify(item)) {
+          await setDoc(doc(firestoreDb, colName, item.id), item);
+        }
+      }
+
+      for (const oldItem of oldItems) {
+        if (!oldItem || !oldItem.id) continue;
+        const existsInNew = newItems.some((ni: any) => ni.id === oldItem.id);
+        if (!existsInNew) {
+          await deleteDoc(doc(firestoreDb, colName, oldItem.id));
+        }
+      }
+    }
+
+    lastSyncedData = JSON.parse(JSON.stringify(newData));
+  } catch (err) {
+    console.error("[Firebase] Error syncing changes to Firestore", err);
+  }
+}
+
 // Initialize DB if doesn't exist
 function readDB(): DatabaseSchema {
   try {
@@ -108,6 +224,8 @@ function readDB(): DatabaseSchema {
 function writeDB(data: DatabaseSchema) {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2));
+    // Asynchronously push changes to Cloud Firestore
+    syncChangesToFirestore(data);
   } catch (err) {
     console.error("Failed to write to server DB", err);
   }
@@ -124,6 +242,7 @@ function generateRef(prefix: string): string {
 
 // Start building express server
 async function startServer() {
+  await initFirestore();
   const app = express();
   app.use(express.json());
 
